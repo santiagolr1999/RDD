@@ -36,14 +36,15 @@ gen bac_dui=DUI*bac1
 
 
 cd "C:\Users\santi\Documents\RDD\Tables"
-reg male DUI bac1 if inrange(bac1,0.03,0.13)
+reg male DUI bac1 bac_dui if inrange(bac1,0.03,0.13)
 outreg2 using punto4.doc, replace
-npregress kernel white diu bac1 bac_dui
+reg white DUI bac1 bac_dui if inrange(bac1,0.03,0.13)
 outreg2 using punto4.doc, append
-npregress kernel aged diu bac1 bac_dui
+reg aged DUI bac1 bac_dui if inrange(bac1,0.03,0.13)
 outreg2 using punto4.doc, append
-npregress kernel acc diu bac1 bac_dui
+reg acc DUI bac1 bac_dui if inrange(bac1,0.03,0.13)
 outreg2 using punto4.doc, append
+
 
 
 ***************************
