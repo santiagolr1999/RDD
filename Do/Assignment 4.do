@@ -22,11 +22,8 @@ graph export "C:\Users\santi\Documents\RDD\Figures\Histogram bac1-eyeball test.p
 
 *McCrary
 
-DCdensity bac1, breakpoint(0.08) generate(Xj Yj r0 fhat se_fhat) 
-drop Yj Xj r0 fhat se_fhat
-graph export "C:\Users\santi\Documents\RDD\Figures\Histogram bac1-eyeball test.png", replace
 
-rddensity bac1, c(0.08) plot all
+asdoc rddensity bac1, c(0.08) plot all
 
 
 ***************************
