@@ -6,8 +6,8 @@ use https://github.com/scunning1975/causal-inference-class/raw/master/hansen_dwi
 ***************************
 
 
-gen diu=1 if bac1>=0.08
-replace diu=0 if diu==.
+gen DUI=1 if bac1>=0.08
+replace DUI=0 if DUI==.
 
 
 ***************************
@@ -24,21 +24,84 @@ graph export "C:\Users\santi\Documents\RDD\Figures\Histogram bac1-eyeball test.p
 
 DCdensity bac1, breakpoint(0.08) generate(Xj Yj r0 fhat se_fhat) 
 drop Yj Xj r0 fhat se_fhat
-*t=0.069589706
-*Approximate p-value=0.472296
-*Do not reject H0
-*Therefore is not manipulated
-
 graph export "C:\Users\santi\Documents\RDD\Figures\Histogram bac1-eyeball test.png", replace
+
+rddensity bac1, c(0.08) plot all
 
 
 ***************************
 *************4*************
 ***************************
-gen bac_dui=diu*bac1
+gen bac_dui=DUI*bac1
 
-reg male diu bac1 bac_dui
-reg white diu bac1 bac_dui
-reg aged diu bac1 bac_dui
-reg acc diu bac1 bac_dui
 
+cd "C:\Users\santi\Documents\RDD\Tables"
+reg male DUI bac1 if inrange(bac1,0.03,0.13)
+outreg2 using punto4.doc, replace
+npregress kernel white diu bac1 bac_dui
+outreg2 using punto4.doc, append
+npregress kernel aged diu bac1 bac_dui
+outreg2 using punto4.doc, append
+npregress kernel acc diu bac1 bac_dui
+outreg2 using punto4.doc, append
+
+
+***************************
+*************5*************
+***************************
+
+*Linear fit
+
+rename bac1 BAC
+
+cmogram acc BAC, lfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel A: Accident at scene) legend lineat(0.08)
+cmogram male BAC, lfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel B: Male) legend lineat(0.08)
+cmogram aged BAC, lfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel C: Age) legend lineat(0.08)
+cmogram white BAC, lfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel D: White) legend lineat(0.08)
+
+*Quadratic fit
+
+
+cmogram acc BAC, qfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel A: Accident at scene) legend lineat(0.08)
+cmogram male BAC, qfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel B: Male) legend lineat(0.08)
+cmogram aged BAC, qfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel C: Age) legend lineat(0.08)
+cmogram white BAC, qfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel D: White) legend lineat(0.08)
+
+***************************
+*************6*************
+***************************
+
+*Bandwidth (0.03-0.13)
+
+cd "C:\Users\santi\Documents\RDD\Tables"
+
+gen bac_dui_sq=bac_dui*bac_dui
+
+reg recidivism DUI BAC male white aged acc if inrange(BAC, 0.03, 0.13), r
+outreg2 using punto6a.doc, replace
+
+reg recidivism DUI BAC bac_dui male white aged acc if inrange(BAC, 0.03, 0.13), r
+outreg2 using punto6a.doc, append 
+
+reg recidivism DUI BAC bac_dui bac_dui_sq male white aged acc if inrange(BAC, 0.03, 0.13), r
+outreg2 using punto6a.doc, append
+
+*Bandwidth (0.055-0.105)
+
+reg recidivism DUI BAC male white aged acc if inrange(BAC, 0.055, 0.105), r
+outreg2 using punto6b.doc, replace
+
+reg recidivism DUI BAC bac_dui male white aged acc if inrange(BAC, 0.055, 0.105), r
+outreg2 using punto6b.doc, append 
+
+reg recidivism DUI BAC bac_dui bac_dui_sq male white aged acc if inrange(BAC, 0.055, 0.105), r
+outreg2 using punto6b.doc, append 
+
+
+***************************
+*************7*************
+***************************
+
+cmogram recidivism BAC if BAC<=0.15, lfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel A: Linear Fit) legend lineat(0.08) 
+
+cmogram recidivism BAC if BAC<=0.15, qfit  histopts(bin(30)) cutpoint(0.08) scatter title(Panel B: Quadratic Fit) legend lineat(0.08) 
